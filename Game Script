@@ -1,0 +1,137 @@
+import pygame
+
+# intialize pygame
+pygame.init()
+
+# creating the game screen
+screen = pygame.display.set_mode((800, 600))
+
+#title and icon
+pygame.display.set_caption("Hero Escape")
+
+
+#player
+playerImg = pygame.image.load('mr egg.png')
+playerX = 370
+playerY = 480
+def player(playerX):
+    screen.blit(playerImg, (playerX, playerY))
+
+
+# box1
+boxImg = pygame.image.load('box.png')
+boxX = 355
+boxY = 415
+def box():
+    screen.blit(boxImg, (boxX, boxY))
+
+
+# blue lever
+blue_lever_Img = pygame.image.load('blue_lever.png')
+x = 375
+blue_lever_Y = 415
+def blue_lever(x):
+    screen.blit(blue_lever_Img, (x, blue_lever_Y))
+
+
+# red lever
+red_lever_Img = pygame.image.load('red_lever.png')
+red_lever_X = 355
+y = 430
+def red_lever(y):
+    screen.blit(red_lever_Img, (red_lever_X, y))
+
+
+# wall
+wall_Img = pygame.image.load('wall.png')
+wall_x = 400
+wall_y = 440
+def wall():
+    screen.blit(wall_Img, (wall_x, wall_y))
+
+
+# wall
+rock_Img = pygame.image.load('rock.png')
+rock_x = 420
+rock_y = 450
+def rock(rock_x, rock_y):
+    screen.blit(rock_Img, (rock_x, rock_y))
+
+#win screen
+win_Img = pygame.image.load('win.png')
+def win():
+    screen.blit(win_Img, (385, 385))
+
+#lose screen
+lose_Img = pygame.image.load('lose.png')
+broken_egg = pygame.image.load('broken egg.png')
+def lose():
+    screen.blit(lose_Img, (385, 385))
+    screen.blit(broken_egg, (370,480))
+
+## Game loop
+running = True
+while running:
+
+    screen.fill((0, 0, 0))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # looking at keystroke
+        if event.type == pygame.KEYDOWN:
+            print("keystroke pressed")
+            if event.key == pygame.K_RIGHT:
+                print("right arrow pressed")
+                x += 60
+                rock_y += 45
+            if event.key == pygame.K_LEFT:
+                print("left arrow pressed")
+                x -= 60
+            if event.key == pygame.K_DOWN:
+                print("down arrow pressed")
+                y += 50
+                playerX += 120
+            if event.key == pygame.K_UP:
+                print("up arrow pressed")
+                y -= 50
+        if event.type == pygame.KEYUP:
+            #if event.key == pygame.K_RIGHT or event.key == pygame.K_DOWN:
+            print("keystroke has been released")
+
+    # lever boundaries
+    if x > 436:
+        x = 435
+    elif x < 376:
+        x = 375
+    if y > 486:
+        y = 485
+    elif y < 430:
+        y = 430
+
+    # rock boundaries
+    if rock_y > 495:
+        rock_y = 495
+
+    # player boundaries
+    if playerX > 490:
+        playerX = 490
+
+    # win screen
+    if playerX>485:
+        win()
+
+    if rock_y>490:
+        lose()
+        playerX-=1000
+
+
+    player(playerX)
+    box()
+    blue_lever(x)
+    red_lever(y)
+    wall()
+    rock(rock_x, rock_y)
+
+    pygame.display.update()
