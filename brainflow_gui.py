@@ -211,15 +211,9 @@ def animate(i, board):
 
     plt.tight_layout()
 
-def label_extractor(input, id):
+def label_extractor(input, id, array):
     try:
-        return input(id)
-    except:
-        return []
-
-def single_label_extractor(input, id):
-    try:
-        return [input(id)]
+        return input(id) if array else [input(id)]
     except:
         return []
 
@@ -234,28 +228,25 @@ BoardShim.log_message(LogLevels.LEVEL_INFO.value, 'start sleeping in the main th
 
 label_list = [None] * BoardShim.get_num_rows(board_id)
 label_dict = {
-    "Battery" : single_label_extractor(BoardShim.get_battery_channel, board_id),
-    "EEG" : label_extractor(BoardShim.get_eeg_channels, board_id),
-    "EMG" : label_extractor(BoardShim.get_emg_channels, board_id),
-    "ECG" : label_extractor(BoardShim.get_ecg_channels, board_id),
-    "Temperature" : label_extractor(BoardShim.get_temperature_channels, board_id),
-    "Resistance" : label_extractor(BoardShim.get_resistance_channels, board_id),
-    "EOG" : label_extractor(BoardShim.get_eog_channels, board_id),
-    "EXG" : label_extractor(BoardShim.get_exg_channels, board_id),
-    "EDA" : label_extractor(BoardShim.get_eda_channels, board_id),
-    "PPG" : label_extractor(BoardShim.get_ppg_channels, board_id),
-    "Accel" : label_extractor(BoardShim.get_accel_channels, board_id),
-    "Analog" : label_extractor(BoardShim.get_analog_channels, board_id),
-    "Gyro" : label_extractor(BoardShim.get_gyro_channels, board_id),
-    "Other" : label_extractor(BoardShim.get_other_channels, board_id)
+    "Battery" : label_extractor(BoardShim.get_battery_channel, board_id, False),
+    "EEG" : label_extractor(BoardShim.get_eeg_channels, board_id, True),
+    "EMG" : label_extractor(BoardShim.get_emg_channels, board_id, True),
+    "ECG" : label_extractor(BoardShim.get_ecg_channels, board_id, True),
+    "Temperature" : label_extractor(BoardShim.get_temperature_channels, board_id, True),
+    "Resistance" : label_extractor(BoardShim.get_resistance_channels, board_id, True),
+    "EOG" : label_extractor(BoardShim.get_eog_channels, board_id, True),
+    "EXG" : label_extractor(BoardShim.get_exg_channels, board_id, True),
+    "EDA" : label_extractor(BoardShim.get_eda_channels, board_id, True),
+    "PPG" : label_extractor(BoardShim.get_ppg_channels, board_id, True),
+    "Accel" : label_extractor(BoardShim.get_accel_channels, board_id, True),
+    "Analog" : label_extractor(BoardShim.get_analog_channels, board_id, True),
+    "Gyro" : label_extractor(BoardShim.get_gyro_channels, board_id, True),
+    "Other" : label_extractor(BoardShim.get_other_channels, board_id, True)
 }
 
 for key, value in label_dict.items():
-    print (value)
-
-for key, value in label_dict.items():
     for count, channel in enumerate(value):
-        label_list[channel] = key +  " " + str(count)
+        label_list[channel] = key +  " " + str(count) if len(value) > 1 else key
 
 if (create_csv):
     with open(output_file, 'w', newline = '') as file:
