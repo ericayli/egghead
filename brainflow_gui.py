@@ -31,7 +31,7 @@ display_interval = 1000
 
 # frequency settings
 fft_type = "welch"
-sampling_rate = 256
+sampling_rate = 250
 
 # welch settings
 welch_all = True
