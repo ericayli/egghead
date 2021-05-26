@@ -219,7 +219,7 @@ BoardShim.enable_dev_board_logger()
 
 params = BrainFlowInputParams()
 
-# for synethetic board:
+# for synthetic board:
 board_id = BoardIds.SYNTHETIC_BOARD.value
 
 # for openbci ganglion board_id:
