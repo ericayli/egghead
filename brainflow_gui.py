@@ -19,23 +19,29 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 
 nan = math.nan
 
+# board settings
+board_id = BoardIds.SYNTHETIC_BOARD.value
+#board_id = BoardIds.GANGLION_BOARD.value
+serial_port = 'COM3'
+mac_address = '12345'
+
 # columns used
 colsused = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
 
 # plot settings
+display_interval = 1000
 leftbord = nan
 rightbord = nan
 welch_left = nan
 welch_right = nan
-display_interval = 1000
 
 # frequency settings
 fft_type = "welch"
-sampling_rate = 250
+sampling_rate = BoardShim.get_sampling_rate(board_id)
 
 # welch settings
 welch_all = True
-seg = 5*sampling_rate
+per_data_seg = 0.2
 poverlap = 0.5
 
 # bandpass settings
@@ -47,7 +53,7 @@ bandpass_right = 30
 legend = True
 label = True
 avg_plot = True
-create_csv = False
+create_csv = True
 output_file = "C:/Users/W10/OneDrive/Desktop/brainflow/bf_gui_output.csv"
 
 # threshold settings
@@ -58,22 +64,12 @@ avg_thres = 0.2
 min_dis = 1
 avg_min_dis = 1
 
-# inefficient globals
-print_first = True
-
 def animate(i, board):
 
     global print_first
 
     data = board.get_board_data().T
-    if (create_csv):
-        with open(output_file, 'a', newline = '') as file:
-            writer = csv.writer(file)
-            if (print_first):
-                writer.writerow(np.arange(data[0].size))
-                print_first = False
-            for i in range(data[:, 0].size):
-                writer.writerow(data[i, :])
+    DataFilter.write_file(data.T, output_file, 'a')
     data = data[:, colsused] if isinstance(colsused, np.ndarray) else data[:, :]
     cols = np.arange(data[0].size) if not isinstance(colsused, np.ndarray) else colsused
     maxdat = data[:, 0].size if len(data.shape) > 1 else data.size
@@ -131,7 +127,7 @@ def animate(i, board):
                 newdat = data[leftborder:rightborder]
 
         if (fft_type == "welch"):
-            welchfreq, welch_data = signal.welch(newdat, fs = sampling_rate, nperseg = seg if not welch_all else newdat.size, noverlap = poverlap * (seg if not welch_all else newdat.size))
+            welchfreq, welch_data = signal.welch(newdat, fs = sampling_rate, nperseg = per_data_seg * data[:, 0].size if not welch_all else newdat.size, noverlap = poverlap * (per_data_seg * data[:, 0].size if not welch_all else newdat.size))
         else:
             welch_data = np.abs(np.fft.fft(newdat))
             welchfreq = np.fft.fftfreq(len(welch_data), 1/sampling_rate)
@@ -175,7 +171,7 @@ def animate(i, board):
                 newdat = data[leftborder:rightborder]
 
         if (fft_type == "welch"):
-            welchfreq, welch_data = signal.welch(newdat, fs = sampling_rate, nperseg = seg if not welch_all else newdat.size, noverlap = poverlap * (seg if not welch_all else newdat.size))
+            welchfreq, welch_data = signal.welch(newdat, fs = sampling_rate, nperseg = per_data_seg * data[:, 0].size if not welch_all else newdat.size, noverlap = poverlap * (per_data_seg * data[:, 0].size if not welch_all else newdat.size))
         else:
             welch_data = np.abs(np.fft.fft(newdat))
             welchfreq = np.fft.fftfreq(len(welch_data), 1/sampling_rate)
@@ -215,32 +211,62 @@ def animate(i, board):
 
     plt.tight_layout()
 
+def label_extractor(input, id):
+    try:
+        return input(id)
+    except:
+        return []
+
+def single_label_extractor(input, id):
+    try:
+        return [input(id)]
+    except:
+        return []
+
 BoardShim.enable_dev_board_logger()
-
 params = BrainFlowInputParams()
-
-# for synthetic board:
-board_id = BoardIds.SYNTHETIC_BOARD.value
-
-# for openbci ganglion board_id:
-#board_id = BoardIds.GANGLION_BOARD.value
-#params.serial_port = 'COM3'
-#params.mac_address = '12345'
-
+params.serial_port = serial_port
+params.mac_address = mac_address
 board = BoardShim(board_id, params)
 board.prepare_session()
 board.start_stream()
 BoardShim.log_message(LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
 
+label_list = [None] * BoardShim.get_num_rows(board_id)
+label_dict = {
+    "Battery" : single_label_extractor(BoardShim.get_battery_channel, board_id),
+    "EEG" : label_extractor(BoardShim.get_eeg_channels, board_id),
+    "EMG" : label_extractor(BoardShim.get_emg_channels, board_id),
+    "ECG" : label_extractor(BoardShim.get_ecg_channels, board_id),
+    "Temperature" : label_extractor(BoardShim.get_temperature_channels, board_id),
+    "Resistance" : label_extractor(BoardShim.get_resistance_channels, board_id),
+    "EOG" : label_extractor(BoardShim.get_eog_channels, board_id),
+    "EXG" : label_extractor(BoardShim.get_exg_channels, board_id),
+    "EDA" : label_extractor(BoardShim.get_eda_channels, board_id),
+    "PPG" : label_extractor(BoardShim.get_ppg_channels, board_id),
+    "Accel" : label_extractor(BoardShim.get_accel_channels, board_id),
+    "Analog" : label_extractor(BoardShim.get_analog_channels, board_id),
+    "Gyro" : label_extractor(BoardShim.get_gyro_channels, board_id),
+    "Other" : label_extractor(BoardShim.get_other_channels, board_id)
+}
+
+for key, value in label_dict.items():
+    print (value)
+
+for key, value in label_dict.items():
+    for count, channel in enumerate(value):
+        label_list[channel] = key +  " " + str(count)
+
 if (create_csv):
     with open(output_file, 'w', newline = '') as file:
         writer = csv.writer(file)
-        writer.writerow(["Sampling Rate: " + str(sampling_rate)])
+        writer.writerow(np.arange(BoardShim.get_num_rows(board_id)))
+        writer.writerow(["Sampling Rate: " + str(BoardShim.get_sampling_rate(board_id)) + " Hz"])
+        writer.writerow(["Board: " + BoardShim.get_device_name(board_id)])
+        writer.writerow(label_list)
 
-time.sleep(1)
-
+time.sleep(display_interval/1000)
 ani = FuncAnimation(plt.gcf(), animate, fargs = (board, ), interval = display_interval)
-
 plt.show()
 
 board.stop_stream()
