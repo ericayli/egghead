@@ -90,6 +90,12 @@ def find_lims(freq, data, left_index, right_index):
         right_lim = math.ceil(np.where(freq > right_index)[0][0])
     return left_lim, right_lim
 
+def label_extractor(input, id, array):
+    try:
+        return input(id) if array else [input(id)]
+    except:
+        return []
+
 def animate(i, board):
 
     data = board.get_board_data().T
@@ -172,12 +178,6 @@ def animate(i, board):
                 ax3.annotate("{:.2f}".format(avg_freq[left_lim:right_lim][value]), (avg_freq[left_lim:right_lim][value], sum_welch[left_lim:right_lim][value]/cols.size), verticalalignment = "top")
 
     plt.tight_layout()
-
-def label_extractor(input, id, array):
-    try:
-        return input(id) if array else [input(id)]
-    except:
-        return []
 
 BoardShim.enable_dev_board_logger()
 params = BrainFlowInputParams()
