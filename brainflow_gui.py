@@ -66,10 +66,8 @@ avg_min_dis = 1
 
 def animate(i, board):
 
-    global print_first
-
     data = board.get_board_data().T
-    DataFilter.write_file(data.T, output_file, 'a')
+    DataFilter.write_file(data.T, output_file, 'a') if create_csv else True
     data = data[:, colsused] if isinstance(colsused, np.ndarray) else data[:, :]
     cols = np.arange(data[0].size) if not isinstance(colsused, np.ndarray) else colsused
     maxdat = data[:, 0].size if len(data.shape) > 1 else data.size
@@ -226,29 +224,28 @@ board.prepare_session()
 board.start_stream()
 BoardShim.log_message(LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
 
-label_list = [None] * BoardShim.get_num_rows(board_id)
-label_dict = {
-    "Battery" : label_extractor(BoardShim.get_battery_channel, board_id, False),
-    "EEG" : label_extractor(BoardShim.get_eeg_channels, board_id, True),
-    "EMG" : label_extractor(BoardShim.get_emg_channels, board_id, True),
-    "ECG" : label_extractor(BoardShim.get_ecg_channels, board_id, True),
-    "Temperature" : label_extractor(BoardShim.get_temperature_channels, board_id, True),
-    "Resistance" : label_extractor(BoardShim.get_resistance_channels, board_id, True),
-    "EOG" : label_extractor(BoardShim.get_eog_channels, board_id, True),
-    "EXG" : label_extractor(BoardShim.get_exg_channels, board_id, True),
-    "EDA" : label_extractor(BoardShim.get_eda_channels, board_id, True),
-    "PPG" : label_extractor(BoardShim.get_ppg_channels, board_id, True),
-    "Accel" : label_extractor(BoardShim.get_accel_channels, board_id, True),
-    "Analog" : label_extractor(BoardShim.get_analog_channels, board_id, True),
-    "Gyro" : label_extractor(BoardShim.get_gyro_channels, board_id, True),
-    "Other" : label_extractor(BoardShim.get_other_channels, board_id, True)
-}
-
-for key, value in label_dict.items():
-    for count, channel in enumerate(value):
-        label_list[channel] = key +  " " + str(count) if len(value) > 1 else key
-
 if (create_csv):
+    label_list = [None] * BoardShim.get_num_rows(board_id)
+    label_dict = {
+        "Battery" : label_extractor(BoardShim.get_battery_channel, board_id, False),
+        "EEG" : label_extractor(BoardShim.get_eeg_channels, board_id, True),
+        "EMG" : label_extractor(BoardShim.get_emg_channels, board_id, True),
+        "ECG" : label_extractor(BoardShim.get_ecg_channels, board_id, True),
+        "Temperature" : label_extractor(BoardShim.get_temperature_channels, board_id, True),
+        "Resistance" : label_extractor(BoardShim.get_resistance_channels, board_id, True),
+        "EOG" : label_extractor(BoardShim.get_eog_channels, board_id, True),
+        "EXG" : label_extractor(BoardShim.get_exg_channels, board_id, True),
+        "EDA" : label_extractor(BoardShim.get_eda_channels, board_id, True),
+        "PPG" : label_extractor(BoardShim.get_ppg_channels, board_id, True),
+        "Accel" : label_extractor(BoardShim.get_accel_channels, board_id, True),
+        "Analog" : label_extractor(BoardShim.get_analog_channels, board_id, True),
+        "Gyro" : label_extractor(BoardShim.get_gyro_channels, board_id, True),
+        "Other" : label_extractor(BoardShim.get_other_channels, board_id, True)
+    }
+    for key, value in label_dict.items():
+        for count, channel in enumerate(value):
+            label_list[channel] = key +  " " + str(count) if len(value) > 1 else key
+
     with open(output_file, 'w', newline = '') as file:
         writer = csv.writer(file)
         writer.writerow(np.arange(BoardShim.get_num_rows(board_id)))
