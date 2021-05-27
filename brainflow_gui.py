@@ -53,7 +53,7 @@ bandpass_right = 30
 legend = True
 label = True
 avg_plot = True
-create_csv = True
+create_csv = False
 output_file = "C:/Users/W10/OneDrive/Desktop/brainflow/bf_gui_output.csv"
 
 # threshold settings
