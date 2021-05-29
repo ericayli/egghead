@@ -157,7 +157,7 @@ def animate(i, board):
             sum_welch[j] = sum_welch[j] + welch_data[j]
 
         if (label):
-            index = peakutils.indexes(welch_data[left_lim:right_lim], thres=0, min_dist = math.ceil(np.where(welchfreq > 2 + min_dis)[0][0] - math.ceil(np.where(welchfreq > 2)[0][0])))
+            index = peakutils.indexes(welch_data[left_lim:right_lim], thres=0, min_dist = math.ceil(np.where(welchfreq > left_lim + min_dis)[0][0] - math.ceil(np.where(welchfreq > left_lim)[0][0])))
             index = [x for x in index if welch_data[left_lim:right_lim][x] > label_thres * max_welch]
             for j, value in enumerate(index):
                 ax2.plot(welchfreq[left_lim:right_lim][value], welch_data[left_lim:right_lim][value], marker="o", ls="", ms=3)
