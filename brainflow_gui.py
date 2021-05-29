@@ -146,7 +146,7 @@ def animate(i, board):
                 ax2.legend(cols)
             else:
                 max_y = max(welch_data[left_lim:right_lim])
-                max_x = welchfreq[welch_data[left_lim:right_lim].argmax()]
+                max_x = welchfreq[left_lim:right_lim][welch_data[left_lim:right_lim].argmax()]
                 ax2.annotate(cols[i], (max_x, max_y), color = "red", verticalalignment = "bottom", weight = "bold")
     # plotting peaks
     for i in range (cols.size):
