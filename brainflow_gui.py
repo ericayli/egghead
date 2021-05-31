@@ -26,7 +26,7 @@ serial_port = 'COM3'
 mac_address = '12345'
 
 # columns used
-colsused = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+colsused = np.array(BoardShim.get_exg_channels(board_id))
 
 # plot settings
 display_interval = 5000
@@ -157,7 +157,7 @@ def animate(i, board):
             sum_welch[j] = sum_welch[j] + welch_data[j]
 
         if (label):
-            index = peakutils.indexes(welch_data[left_lim:right_lim], thres=0, min_dist = math.ceil(np.where(welchfreq > left_lim + min_dis)[0][0] - math.ceil(np.where(welchfreq > left_lim)[0][0])))
+            index = peakutils.indexes(welch_data[left_lim:right_lim], thres=0, min_dist = math.ceil(np.where(welchfreq > left_lim + min_dis)[0][0] - np.where(welchfreq > left_lim)[0][0]))
             index = [x for x in index if welch_data[left_lim:right_lim][x] > label_thres * max_welch]
             for j, value in enumerate(index):
                 ax2.plot(welchfreq[left_lim:right_lim][value], welch_data[left_lim:right_lim][value], marker="o", ls="", ms=3)
@@ -171,7 +171,7 @@ def animate(i, board):
         ax3.set_xlabel("Frequency (Hz)")
         ax3.set_ylabel("Amplitude")
         ax3.plot(avg_freq[left_lim:right_lim], sum_welch[left_lim:right_lim]/cols.size)
-        index = peakutils.indexes(sum_welch[left_lim:right_lim]/cols.size, thres = avg_thres, min_dist = math.ceil(np.where(welchfreq > left_lim + avg_min_dis)[0][0] - math.ceil(np.where(welchfreq > left_lim)[0][0])))
+        index = peakutils.indexes(sum_welch[left_lim:right_lim]/cols.size, thres = avg_thres, min_dist = math.ceil(np.where(welchfreq > left_lim + avg_min_dis)[0][0] - np.where(welchfreq > left_lim)[0][0]))
         if (label):
             for j, value in enumerate(index):
                 ax3.plot(avg_freq[left_lim:right_lim][value], sum_welch[left_lim:right_lim][value]/cols.size, marker="o", ls="", ms=3)
