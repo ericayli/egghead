@@ -66,7 +66,7 @@ avg_min_dis = 1
 def bandpass_data(data, left_border, right_border):
     if (apply_bandpass):
         sos = sig.butter(3, [bandpass_left*2/sampling_rate, bandpass_right*2/sampling_rate], btype = 'bandpass', output = 'sos')
-        b_data = sig.sosfilt(sos, b_data)[left_border:right_border]
+        b_data = sig.sosfilt(sos, data)[left_border:right_border]
     else:
         b_data = data[left_border:right_border]
     return b_data
